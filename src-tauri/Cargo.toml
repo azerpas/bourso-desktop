@@ -1,0 +1,49 @@
+[package]
+name = "bourso-desktop"
+version = "1.0.0-beta.0"
+description = "Open-source desktop app for Bourso"
+authors = ["azerpas"]
+edition = "2021"
+license = "MIT"
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "bourso_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+anyhow = "1.0.97"
+bourso_api =  { git = "https://github.com/azerpas/bourso-api", branch = "prepare-desktop-app" }
+clap = "4.5"
+chrono = { version = "0.4.40", features = ["serde"] }
+croner = "2.1.0"
+fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
+log = "0.4.26"
+log4rs = "1"
+notify-rust = "4.11" # needed cause tauri-plugin-notification is not working with CLI
+tauri = { version = "2.3", features = ["test"] }
+tauri-plugin-fs = "2"
+tauri-plugin-log = "2"
+tauri-plugin-opener = "2.2"
+tauri-plugin-os = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-sentry = "0.4"
+tauri-plugin-store = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-process = "2"
+tempfile = "3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-cli = "2"
+tauri-plugin-updater = "2"

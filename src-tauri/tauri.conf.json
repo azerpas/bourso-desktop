@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "bourso-desktop",
+  "identifier": "com.bourso-desktop.app",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "bourso-desktop",
+        "width": 800,
+        "height": 600,
+        "focus": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "resources": [
+      "run_if_needed.sh"
+    ],
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "cli": {
+      "description": "bourso-desktop inner cli",
+      "subcommands": {
+        "trade": {
+          "description": "Trade with your accounts",
+          "subcommands": {
+            "orders": {
+              "description": "Check your orders"
+            }
+          }
+        }
+      }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVEMkZDRUZCNkM3REIxMUEKUldRYXNYMXMrODR2N2N5bitWa2NJblljQzJ4SVl3UUl1YmQ0d2Q1S2JIKzhXMUFBZzVwKzRmMVQK",
+      "endpoints": [
+        "https://github.com/azerpas/bd1/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}
