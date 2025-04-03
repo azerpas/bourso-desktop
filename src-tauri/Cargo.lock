@@ -464,7 +464,7 @@ dependencies = [
 
 [[package]]
 name = "bourso-desktop"
-version = "1.0.0-beta.0"
+version = "1.0.0-0"
 dependencies = [
  "anyhow",
  "bourso_api",
