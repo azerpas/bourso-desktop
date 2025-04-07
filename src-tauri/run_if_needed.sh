@@ -81,6 +81,12 @@ done < <(jq -c '.[]' "$JOBS_FILE")  # Read each job as a JSON object
 
 # If a job should run, execute the Rust program
 if [[ "$SHOULD_RUN" == "true" ]]; then
+    # Check if program is already running with the exact command
+    if pgrep -fx "$PROGRAM trade orders" >/dev/null 2>&1; then
+        echo "Error: Program is already running"
+        exit 1
+    fi
+
     echo "Running the program..."
     "$PROGRAM" trade orders
 else
