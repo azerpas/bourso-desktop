@@ -5,11 +5,10 @@ import { LoginModal } from "./views/login";
 import { CREDENTIALS_FILE } from "./constants";
 import { invoke } from "@tauri-apps/api/core";
 import { Dashboard } from "./views/dashboard";
-import { AccountType, AssetData, InitResponse, Mfa } from "./types";
+import { AccountType, AssetData, InitResponse, Mfa, UpdateAvailable as NewUpdate } from "./types";
 import { parseAssetData } from "./utils/assetUtils";
 import { Toaster, toast } from "sonner";
 import { DashboardInitProgress } from "./lib/progress";
-import { check, Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { ToastAction } from "./components/ui/toast";
 import "./lib/logs";
@@ -32,10 +31,9 @@ function App() {
   const [clientError, setClientError] = useState<string | undefined>();
 
   // Update state
-  const [update, setUpdate] = useState<Update | undefined>();
+  const [update, setUpdate] = useState<NewUpdate | undefined>();
   const [updating, setUpdating] = useState<boolean>(false);
-  const [updateProgress, setUpdateProgress] = useState<string>("");
-
+  
   useEffect(() => {
     async function init() {
       const store = new LazyStore(CREDENTIALS_FILE);
@@ -57,13 +55,19 @@ function App() {
         });
       }
 
-      const update = await check();
-      if (update) {
+      const updateResponse: { update: NewUpdate } | string = await invoke("check_for_updates");
+      if (typeof updateResponse === "object") {
+        const { update } = updateResponse;
         console.log(
           `found update ${update.version} from ${update.date} with notes ${update.body}`,
         );
         toast("Update available", {
-          description: `Version ${update.version} is available with notes ${update.body}`,
+          description: (
+            <div>
+              <p>Version {update.version} available</p>
+              <p>{update.body}</p>
+            </div>
+          ),
           duration: 999999999,
           action: (
             <ToastAction
@@ -170,28 +174,7 @@ function App() {
   useEffect(() => {
     async function updateApp() {
       if (updating && update) {
-        let downloaded = 0;
-        let contentLength = 0;
-        // alternatively we could also call update.download() and update.install() separately
-        await update.downloadAndInstall((event) => {
-          switch (event.event) {
-            case "Started":
-              contentLength = event.data.contentLength || -1;
-              setUpdateProgress(
-                `started downloading ${event.data.contentLength} bytes`,
-              );
-              break;
-            case "Progress":
-              downloaded += event.data.chunkLength;
-              setUpdateProgress(
-                `downloaded ${downloaded} from ${contentLength}`,
-              );
-              break;
-            case "Finished":
-              setUpdateProgress("download finished");
-              break;
-          }
-        });
+        await invoke("update");
 
         await relaunch();
       }
@@ -202,8 +185,7 @@ function App() {
   if (updating) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Updating... The app will restart automatically at the end</p>
-        <p>{updateProgress}</p>
+        <p>Updating to version {update?.version}... The app will restart at the end.</p>
       </div>
     );
   }

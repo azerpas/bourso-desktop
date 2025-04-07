@@ -6,6 +6,7 @@ use bourso_api::{
     get_client,
 };
 use cron::{deactivate_dca_scheduler, init_dca_scheduler, is_dca_scheduler_setup};
+use log::{debug, info};
 use order::{get_orders_cmd, new_order_cmd};
 use scheduler::run_job_manually;
 use tauri::{
@@ -14,6 +15,7 @@ use tauri::{
 };
 use tauri_plugin_cli::CliExt;
 use tauri_plugin_sentry::sentry;
+use tauri_plugin_updater::UpdaterExt;
 use trading::get_trading_summary;
 
 mod assets;
@@ -211,6 +213,75 @@ async fn delete_scheduled_job(app: AppHandle, job_id: String) -> Result<(), ()> 
     Ok(())
 }
 
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+struct NewUpdate {
+    pub version: String,
+    pub current_version: String,
+    pub body: String,
+    pub date: String,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum UpdateResponse {
+    Update(NewUpdate),
+    NoUpdateAvailable,
+}
+
+#[tauri::command]
+async fn check_for_updates(app: AppHandle) -> Result<UpdateResponse, String> {
+    let update = app
+        .updater()
+        .expect("error while getting updater")
+        .check()
+        .await
+        .expect("error while checking for updates");
+    if let Some(update) = update {
+        Ok(UpdateResponse::Update(NewUpdate {
+            version: update.version,
+            current_version: update.current_version,
+            body: update.body.unwrap_or("".to_string()),
+            date: update.date.map(|d| d.to_string()).unwrap_or("".to_string()),
+        }))
+    } else {
+        Ok(UpdateResponse::NoUpdateAvailable)
+    }
+}
+
+#[tauri::command]
+async fn update(app: AppHandle) -> Result<(), String> {
+    if let Some(update) = app
+        .updater()
+        .expect("error while getting updater")
+        .check()
+        .await
+        .expect("error while checking for updates")
+    {
+        let mut downloaded = 0;
+
+        // alternatively we could also call update.download() and update.install() separately
+        update
+            .download_and_install(
+                |chunk_length, content_length| {
+                    downloaded += chunk_length;
+                    debug!("downloaded {downloaded} from {content_length:?}");
+                },
+                || {
+                    info!("download finished");
+                },
+            )
+            .await
+            .expect("error while downloading and installing update");
+
+        info!("update installed");
+        app.restart();
+    } else {
+        info!("No update available");
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let client = sentry::init((
@@ -261,6 +332,8 @@ pub fn run() {
             new_order_cmd,
             get_mfas,
             submit_mfa,
+            check_for_updates,
+            update,
         ])
         .setup(|app| {
             app.manage(Mutex::new(BoursoState {
