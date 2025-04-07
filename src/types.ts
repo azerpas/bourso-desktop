@@ -156,3 +156,10 @@ export interface Mfa {
   token: string;
   mfa_type: string;
 }
+
+export interface UpdateAvailable {
+  version: string;
+  current_version: string;
+  body: string;
+  date: string;
+}
