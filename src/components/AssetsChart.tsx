@@ -50,7 +50,15 @@ export function AssetsChart({
         date: point.date,
       };
       chartData.forEach((asset) => {
-        mergedPoint[asset.symbol] = asset.data[index][asset.symbol];
+        let idx = index;
+        if (asset.data.length != chartData[0].data.length) {
+          // Handle case where data lengths are different
+          idx = index - Math.abs(asset.data.length - chartData[0].data.length);
+        }
+        if (asset.data[idx] === undefined) {
+          return;
+        }
+        mergedPoint[asset.symbol] = asset.data[idx][asset.symbol];
       });
       return mergedPoint;
     });
