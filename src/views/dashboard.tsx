@@ -167,21 +167,31 @@ export function Dashboard({
         return;
       }
 
-      const newAssetsData = await Promise.all(
-        unknownAssets.map(async (position, index) => {
-          return {
-            ...parseAssetData(
-              await invoke("get_ticks", {
-                symbol: position.symbol,
-                length: 30,
-              }),
-              index,
-            ),
-          };
-        }),
-      );
+      try {
+        const newAssetsData = await Promise.all(
+          unknownAssets.map(async (position, index) => {
+            return {
+              ...parseAssetData(
+                await invoke("get_ticks", {
+                  symbol: position.symbol,
+                  length: 30,
+                }),
+                index,
+              ),
+            };
+          }),
+        );
 
-      setAssetData([...assetsData, ...newAssetsData]);
+        console.log("New assets data:", newAssetsData);
+  
+        setAssetData([...assetsData, ...newAssetsData]);
+      } catch (error) {
+        console.error("Error fetching asset data:", error);
+        toast.error("Error fetching asset data", {
+          description: "Please check your connection or try again later.",
+          duration: 15000,
+        });
+      }
     };
 
     updateAssetsDataFromTradingSummary();

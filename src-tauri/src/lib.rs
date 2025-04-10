@@ -178,14 +178,16 @@ async fn get_accounts(
 }
 
 #[tauri::command]
-async fn get_ticks(symbol: &str, length: u8) -> Result<GetTicksEOD, ()> {
+async fn get_ticks(symbol: &str, length: u8) -> Result<GetTicksEOD, String> {
     let interval = 0;
     let web_client: BoursoWebClient = get_client();
 
-    let quotes = web_client
-        .get_ticks(symbol, length.into(), interval)
-        .await
-        .expect("error while getting ticks");
+    let quotes = match web_client.get_ticks(symbol, length.into(), interval).await {
+        Ok(quotes) => quotes,
+        Err(e) => {
+            return Err(format!("error while getting ticks for {}: {:?}", symbol, e));
+        }
+    };
     Ok(quotes)
 }
 
