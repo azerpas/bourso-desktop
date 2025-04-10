@@ -120,7 +120,7 @@ export function SetupDca({
     const job: Job = {
       schedule:
         data.scheduleType === "weekly"
-          ? { weekly: { day: 1 } }
+          ? { weekly: { day: 1 } } // 1st day of the week
           : data.scheduleType === "monthly"
             ? { monthly: { day: 1 } }
             : "daily",

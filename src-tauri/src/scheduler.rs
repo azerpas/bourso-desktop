@@ -1,7 +1,7 @@
 use crate::order::{new_order, OrderArgs, OrderPassed};
 use crate::BoursoState;
 use anyhow::Result;
-use chrono::{DateTime, Datelike, Local, Utc, Weekday};
+use chrono::{DateTime, Datelike, Local, Utc};
 use log::debug;
 use notify_rust::Notification;
 #[cfg(target_os = "macos")]
@@ -20,7 +20,7 @@ pub const HISTORY_FILE_PATH: &str = "history.json";
 #[serde(rename_all = "lowercase")]
 pub enum Schedule {
     Daily,
-    Weekly { day: Weekday },
+    Weekly { day: u8 },
     Monthly { day: u32 },
 }
 
@@ -391,10 +391,7 @@ mod tests {
     fn test_weekly_schedule() {
         let test_order = create_test_order();
 
-        let job = Job::new(
-            Schedule::Weekly { day: Weekday::Mon },
-            Command::Order(test_order),
-        );
+        let job = Job::new(Schedule::Weekly { day: 0 }, Command::Order(test_order));
 
         // Test when it's Monday but hasn't run this week
         let this_monday = make_datetime(2025, 2, 3); // A Monday
