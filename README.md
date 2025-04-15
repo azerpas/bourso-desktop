@@ -1,5 +1,7 @@
 # bourso-desktop
 
+![main screen](https://github.com/user-attachments/assets/9d2a43dc-c56a-435e-84b4-b26a2db2c541)
+
 This app is a desktop client for [BoursoBank/Boursorama](https://www.boursorama.com/). It features a simple and clean interface to manage your accounts, place orders, and setup automatic DCA (Dollar Cost Averaging) on your favorite assets.
 
 - [Install](#install)
