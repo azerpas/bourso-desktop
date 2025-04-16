@@ -347,10 +347,9 @@ export function SetupDca({
 
                 <Separator />
                 <p className="text-sm text-muted-foreground">
-                  The DCA will be made at the scheduled time below if your
+                  The DCA will be made at the frequency below if your
                   device is online, else it will be made as soon as your device
-                  is back online. Make sure there&apos;s no existing DCA
-                  scheduled at the same time.
+                  is back online.
                 </p>
 
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
