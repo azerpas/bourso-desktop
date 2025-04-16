@@ -12,12 +12,24 @@ This app is a desktop client for [BoursoBank/Boursorama](https://www.boursorama.
 - [Disclaimer](#disclaimer)
 
 ## Install
+### Download the latest release
 Head over https://github.com/azerpas/bourso-desktop/releases and download the latest release for your platform.
 - Windows ends with `_x64-setup.exe`
 - MacOS
   - Intel (pre-2020) ends with `_x64.dmg`
   - Apple Silicon (2020+) ends with `_aarch64.dmg`
 - Linux has multiple options
+### Build from source
+Or you can build the app from source. Requires pnpm and [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/#system-dependencies).
+```
+git clone https://github.com/azerpas/bourso-desktop.git
+cd bourso-desktop
+pnpm install
+pnpm tauri build
+```
+
+## Getting started
+Head over to [the documentation](./docs/getting_started.md) to get started with the app.
 
 ### MacOS specific
 On MacOS, you may need to allow the app to run
@@ -60,7 +72,7 @@ xattr -r -d com.apple.quarantine /Applications/bourso-desktop.app
 ## Known issues
 - [ ] Windows support is not fully implemented (no DCA)
 - [ ] Error handling could be improved
-- [ ] Passwordless DCA opens up multiple windows until the user has logged in and confirmed the DCA
+- [X] ~~Passwordless DCA opens up multiple windows until the user has logged in and confirmed the DCA~~
 - [ ] No internet connection handling
 - [ ] Cookie has expired
 
