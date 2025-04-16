@@ -83,4 +83,22 @@ This app runs locally. All outbound/inbound data is sent/received to/from Bourso
 
 ## Disclaimer
 
-This script is provided as is, without any warranty. I am not responsible for any loss of funds. Use at your own risk. I am not affiliated with BoursoBank or any other project mentioned in this repository. This is not financial advice. 
+**IMPORTANT: PLEASE READ THIS DISCLAIMER CAREFULLY BEFORE USING THIS APPLICATION.**
+
+This application (the "bourso-desktop App") is an open-source tool designed to communicate with Boursorama/Boursobank services, enabling automated API calls from your desktop. By using this bourso-desktop App, you acknowledge and agree to the following terms:
+
+1. **No Affiliation**: This bourso-desktop App is not affiliated with, endorsed by, or sponsored by BoursoBank or any bank or financial institution. It is developed and maintained by independent contributors.
+
+2. **Use at Your Own Risk**: The bourso-desktop App is provided "as is," without warranty of any kind, either express or implied. The developers and contributors shall not be held liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of the use of or inability to use the bourso-desktop App, even if advised of the possibility of such damages.
+
+3. **Security**: While efforts have been made to ensure the security of the bourso-desktop App, using it may expose you to risks, including but not limited to data breaches, unauthorized access, and financial loss. It is your responsibility to implement appropriate security measures and monitor your bank accounts for any unauthorized activity.
+
+4. **Compliance**: You are responsible for ensuring that your use of the bourso-desktop App complies with all applicable laws, regulations, and terms of service of your bank. The developers and contributors are not responsible for any legal or regulatory violations that may arise from your use of the bourso-desktop App.
+
+5. **No Financial Advice**: The bourso-desktop App does not provide financial advice. Any actions taken based on the information or functionality provided by the bourso-desktop App are your sole responsibility.
+
+6. **Open Source**: This bourso-desktop App is open-source, and its code is available for review and modification. However, the developers and contributors are not obligated to provide support, updates, or maintenance for the bourso-desktop App.
+
+7. **Third-Party Services**: The bourso-desktop App may interact with third-party services and APIs. The developers and contributors are not responsible for the availability, reliability, or security of these services.
+
+By using this bourso-desktop App, you acknowledge that you have read, understood, and agreed to this disclaimer. If you do not agree to these terms, do not use the bourso-desktop App.
