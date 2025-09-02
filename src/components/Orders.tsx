@@ -13,6 +13,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { OrderForm } from "./OrderForm";
 import { toast, Toaster } from "sonner";
+import { Button } from "./ui/button";
 
 export function Orders({
   accounts,
@@ -61,7 +62,11 @@ export function Orders({
                   </Tooltip>
                 </TooltipProvider>
               </CardTitle>
-              <DialogTrigger>Place order</DialogTrigger>
+              <DialogTrigger>
+                <Button variant="outline">
+                  Place order
+                </Button>
+              </DialogTrigger>
             </div>
             <DialogContent>
               <OrderForm

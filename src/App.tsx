@@ -49,9 +49,44 @@ function App() {
 
       const state: InitResponse = await invoke("init");
       if (state.dca_without_password) {
-        toast("App opened for DCA", {
-          description: "Login to place the order",
+        // Format the DCA jobs information
+        const dcaInfo = state.jobs_to_run.map(job => {
+          if (job.command.order) {
+            const order = job.command.order;
+            const quantity = order.quantity || order.amount;
+            return `${order.side.charAt(0).toUpperCase()}${order.side.slice(1)} ${order.symbol} (${quantity} ${order.quantity ? 'shares' : 'EUR'})`;
+          }
+          return 'Unknown job';
+        }).join(', ');
+
+        toast(`App opened for DCA ${dcaInfo}`, {
+          description: (
+            <div>
+              <p className="text-xs text-gray-500">Login to place the order or skip until next occurrence</p>
+            </div>
+          ),
           duration: 999999999,
+          action: state.jobs_to_run.length > 0 ? (
+            <ToastAction
+              altText="Skip"
+              onClick={async () => {
+                // Skip all jobs that are due to run
+                for (const job of state.jobs_to_run) {
+                  try {
+                    await invoke("skip_dca_job", { jobId: job.id });
+                  } catch (error) {
+                    console.error(`Failed to skip job ${job.id}:`, error);
+                  }
+                }
+                toast.dismiss();
+                toast.success("DCA skipped", {
+                  description: "The scheduled DCA has been skipped for this time.",
+                });
+              }}
+            >
+              Skip
+            </ToastAction>
+          ) : undefined,
         });
       }
 
