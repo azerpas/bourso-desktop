@@ -14,15 +14,28 @@ import { ToastAction } from "./components/ui/toast";
 import "./lib/logs";
 import { Dialog } from "./components/ui/dialog";
 import { InputOTPForm } from "./components/MfaForm";
+import { isDevMode, mockAccounts, mockAssetsData } from "./lib/mockData";
 
 function App() {
-  const [clientId, setClientId] = useState<string | undefined>();
-  const [password, setPassword] = useState<string | undefined>();
-  const [clientInitialized, setClientInitialized] = useState<boolean>(false);
-  const [accounts, setAccounts] = useState<AccountType[]>([]);
-  const [assetsData, setAssetData] = useState<AssetData[]>([]);
+  const devMode = isDevMode();
+
+  const [clientId, setClientId] = useState<string | undefined>(
+    devMode ? "DEV_MODE" : undefined
+  );
+  const [password, setPassword] = useState<string | undefined>(
+    devMode ? "DEV_MODE" : undefined
+  );
+  const [clientInitialized, setClientInitialized] = useState<boolean>(devMode);
+  const [accounts, setAccounts] = useState<AccountType[]>(
+    devMode ? mockAccounts : []
+  );
+  const [assetsData, setAssetData] = useState<AssetData[]>(
+    devMode ? mockAssetsData : []
+  );
   const [dashboardInitProgress, setDashboardInitProgress] =
-    useState<DashboardInitProgress>(DashboardInitProgress.INITIATING);
+    useState<DashboardInitProgress>(
+      devMode ? DashboardInitProgress.DASHBOARD_FINALIZED : DashboardInitProgress.INITIATING
+    );
   const [currentMfa, setCurrentMfa] = useState<Mfa | undefined>();
   const [mfaCompleted, setMfaCompleted] = useState<boolean>(false);
   const [mfaDialogOpen, setMfaDialogOpen] = useState<boolean>(false);
@@ -36,6 +49,12 @@ function App() {
   
   useEffect(() => {
     async function init() {
+      // Skip initialization in dev mode
+      if (devMode) {
+        console.log("🚀 Development mode enabled - using mock data");
+        return;
+      }
+
       const store = new LazyStore(CREDENTIALS_FILE);
 
       const clientID = await store.get<string>("clientId");
@@ -90,6 +109,9 @@ function App() {
 
   useEffect(() => {
     async function initGraph() {
+      // Skip in dev mode - using mock data
+      if (devMode) return;
+
       const savedAssets: string[] = await invoke("get_saved_assets");
       const promises = [
         ...savedAssets.map((asset: string) =>
@@ -105,6 +127,9 @@ function App() {
 
   useEffect(() => {
     async function saveAssets() {
+      // Skip in dev mode
+      if (devMode) return;
+
       await invoke("save_assets", {
         assets: assetsData.map((asset) => asset.symbol),
       });
@@ -114,6 +139,9 @@ function App() {
 
   useEffect(() => {
     const initClient = async () => {
+      // Skip in dev mode - already initialized
+      if (devMode) return;
+
       if (clientId && password && !clientInitialized) {
         setClientError(undefined);
         setDashboardInitProgress(DashboardInitProgress.LOGGIN_IN);
