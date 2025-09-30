@@ -178,7 +178,7 @@ async fn get_accounts(
 }
 
 #[tauri::command]
-async fn get_ticks(symbol: &str, length: u8) -> Result<GetTicksEOD, String> {
+async fn get_ticks(symbol: &str, length: u16) -> Result<GetTicksEOD, String> {
     let interval = 0;
     let web_client: BoursoWebClient = get_client();
 
