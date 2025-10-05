@@ -81,6 +81,7 @@ export function Orders({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Date</TableHead>
                 <TableHead>ID</TableHead>
                 <TableHead>Asset</TableHead>
                 <TableHead>Amount</TableHead>
@@ -92,6 +93,7 @@ export function Orders({
             <TableBody>
               {orders.map((order) => (
                 <TableRow key={order.id}>
+                  <td>{order.timestamp ? new Date(order.timestamp * 1000).toLocaleString() : "N/A"}</td>
                   <td>{order.id}</td>
                   <td>{order.args.symbol}</td>
                   <td>{order.args.quantity}</td>

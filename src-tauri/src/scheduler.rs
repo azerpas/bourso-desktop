@@ -158,6 +158,8 @@ impl Job {
                 let order = OrderPassed {
                     id: order_details.0,
                     price: order_details.1.unwrap(),
+                    timestamp: DateTime::from_timestamp(Local::now().timestamp(), 0)
+                        .map(|dt| dt.timestamp()),
                     args: OrderArgs {
                         account: order.account.to_string(),
                         symbol: order.symbol.to_string(),
