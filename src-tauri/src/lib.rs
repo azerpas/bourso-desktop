@@ -8,7 +8,7 @@ use bourso_api::{
 use cron::{deactivate_dca_scheduler, init_dca_scheduler, is_dca_scheduler_setup};
 use log::{debug, info};
 use order::{get_orders_cmd, new_order_cmd};
-use scheduler::run_job_manually;
+use scheduler::{run_job_manually, skip_dca_job};
 use tauri::{
     async_runtime::{block_on, Mutex},
     AppHandle, Manager, State,
@@ -178,7 +178,7 @@ async fn get_accounts(
 }
 
 #[tauri::command]
-async fn get_ticks(symbol: &str, length: u8) -> Result<GetTicksEOD, String> {
+async fn get_ticks(symbol: &str, length: u16) -> Result<GetTicksEOD, String> {
     let interval = 0;
     let web_client: BoursoWebClient = get_client();
 
@@ -331,6 +331,7 @@ pub fn run() {
             save_assets,
             get_trading_summary,
             run_job_manually,
+            skip_dca_job,
             new_order_cmd,
             get_mfas,
             submit_mfa,

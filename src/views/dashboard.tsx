@@ -2,6 +2,7 @@ import { AccountsList } from "@/components/AccountsList";
 import { AssetsChart } from "@/components/AssetsChart";
 import { Orders } from "@/components/Orders";
 import { SetupDca } from "@/components/SetupDca";
+import { PerformanceSummary } from "@/components/PerformanceSummary";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -253,6 +254,11 @@ export function Dashboard({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <AssetsChart assetsData={assetsData} setAssetsData={setAssetData} />
+            <PerformanceSummary
+              accounts={accounts}
+              assetsData={assetsData}
+              setAssetsData={setAssetData}
+            />
             <AccountsList accounts={accounts} setAccounts={setAccounts} />
             <Orders
               accounts={accounts}

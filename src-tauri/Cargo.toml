@@ -1,6 +1,6 @@
 [package]
 name = "bourso-desktop"
-version = "1.0.2"
+version = "1.1.0"
 description = "Open-source desktop app for Bourso"
 authors = ["azerpas"]
 edition = "2021"

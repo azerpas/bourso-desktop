@@ -13,6 +13,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { OrderForm } from "./OrderForm";
 import { toast, Toaster } from "sonner";
+import { Button } from "./ui/button";
 
 export function Orders({
   accounts,
@@ -61,7 +62,11 @@ export function Orders({
                   </Tooltip>
                 </TooltipProvider>
               </CardTitle>
-              <DialogTrigger>Place order</DialogTrigger>
+              <DialogTrigger>
+                <Button variant="outline">
+                  Place order
+                </Button>
+              </DialogTrigger>
             </div>
             <DialogContent>
               <OrderForm
@@ -76,6 +81,7 @@ export function Orders({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Date</TableHead>
                 <TableHead>ID</TableHead>
                 <TableHead>Asset</TableHead>
                 <TableHead>Amount</TableHead>
@@ -87,6 +93,7 @@ export function Orders({
             <TableBody>
               {orders.map((order) => (
                 <TableRow key={order.id}>
+                  <td>{order.timestamp ? new Date(order.timestamp * 1000).toLocaleString() : "N/A"}</td>
                   <td>{order.id}</td>
                   <td>{order.args.symbol}</td>
                   <td>{order.args.quantity}</td>

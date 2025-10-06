@@ -158,6 +158,8 @@ impl Job {
                 let order = OrderPassed {
                     id: order_details.0,
                     price: order_details.1.unwrap(),
+                    timestamp: DateTime::from_timestamp(Local::now().timestamp(), 0)
+                        .map(|dt| dt.timestamp()),
                     args: OrderArgs {
                         account: order.account.to_string(),
                         symbol: order.symbol.to_string(),
@@ -286,6 +288,40 @@ pub async fn run_job_manually(app: AppHandle, job: Job) -> std::result::Result<(
             }
         }
         Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Skip a DCA job by updating its last_run timestamp to now
+#[tauri::command]
+pub async fn skip_dca_job(app: AppHandle, job_id: String) -> std::result::Result<(), String> {
+    let app_local_data_dir = app.path().app_local_data_dir().unwrap();
+
+    let mut jobs = match load_jobs(&app_local_data_dir) {
+        Ok(jobs) => jobs,
+        Err(e) => return Err(format!("Failed to load jobs: {}", e)),
+    };
+
+    // Find the job with the given ID and update its last_run timestamp
+    let mut job_found = false;
+    for job in &mut jobs {
+        if job.id == job_id {
+            job.last_run = Local::now().timestamp();
+            job_found = true;
+            break;
+        }
+    }
+
+    if !job_found {
+        return Err(format!("Job with ID {} not found", job_id));
+    }
+
+    // Save the updated jobs
+    match save_jobs(&app_local_data_dir, jobs) {
+        Ok(_) => {
+            debug!("Job {} skipped successfully", job_id);
+            Ok(())
+        }
+        Err(e) => Err(format!("Failed to save jobs: {}", e)),
     }
 }
 

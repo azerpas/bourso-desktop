@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::{Local, DateTime};
 use serde::{Deserialize, Serialize};
 use tauri::{async_runtime::Mutex, command, AppHandle, Manager};
 use tauri_plugin_store::StoreExt;
@@ -11,6 +12,7 @@ use crate::{scheduler::HISTORY_FILE_PATH, BoursoState};
 pub struct OrderPassed {
     pub id: String,
     pub price: f64,
+    pub timestamp: Option<i64>,
     pub args: OrderArgs,
 }
 
@@ -122,6 +124,8 @@ pub async fn new_order_cmd(
     let order = OrderPassed {
         id: order_details.0,
         price: order_details.1.unwrap(),
+        timestamp: DateTime::from_timestamp(Local::now().timestamp(), 0)
+            .map(|dt| dt.timestamp()),
         args: OrderArgs {
             account: account.to_string(),
             symbol: symbol.to_string(),

@@ -87,7 +87,7 @@ export function AssetsChart({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-xl">
             <TrendingUp className="h-6 w-6" />
-            Performance (30 Days)
+            Performance
           </CardTitle>
           <AssetPicker
             label="Assets"

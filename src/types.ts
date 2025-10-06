@@ -52,6 +52,7 @@ export interface OrderArgs {
 
 export interface Order {
   id: string;
+  timestamp?: number;
   price: number;
   args: OrderArgs;
 }
