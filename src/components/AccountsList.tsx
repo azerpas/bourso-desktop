@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { TransferModal } from "./TransferModal";
 
 export function AccountsList({
   accounts,
@@ -15,6 +16,10 @@ export function AccountsList({
 }) {
   const [hideBalances, setHideBalances] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<AccountType | null>(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [transferSource, setTransferSource] = useState<AccountType | null>(null);
+  const [transferTarget, setTransferTarget] = useState<AccountType | null>(null);
 
   // Calculate total balance
   const totalBalance = accounts.reduce(
@@ -36,6 +41,22 @@ export function AccountsList({
     const accounts: AccountType[] = await invoke("get_accounts");
     setAccounts(accounts);
     setRefreshing(false);
+  };
+
+  const handleAccountClick = (account: AccountType) => {
+    if (selectedAccount === null) {
+      // First click - select source account
+      setSelectedAccount(account);
+    } else if (selectedAccount.id === account.id) {
+      // Click same account - deselect
+      setSelectedAccount(null);
+    } else {
+      // Second click - open transfer modal
+      setTransferSource(selectedAccount);
+      setTransferTarget(account);
+      setTransferModalOpen(true);
+      setSelectedAccount(null);
+    }
   };
 
   return (
@@ -71,10 +92,17 @@ export function AccountsList({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Wallet className="h-6 w-6" />
-              Your Accounts
-            </CardTitle>
+            <div className="flex flex-col gap-1">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Wallet className="h-6 w-6" />
+                Your Accounts
+              </CardTitle>
+              {selectedAccount && (
+                <p className="text-sm text-muted-foreground">
+                  Click another account to transfer from {selectedAccount.name}
+                </p>
+              )}
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -93,7 +121,12 @@ export function AccountsList({
           {accounts.map((account) => (
             <div
               key={account.id}
-              className="flex flex-col space-y-2 rounded-lg border p-4 transition-colors hover:bg-accent hover:text-accent-foreground"
+              onClick={() => handleAccountClick(account)}
+              className={`flex flex-col space-y-2 rounded-lg border p-4 transition-all cursor-pointer select-none ${
+                selectedAccount?.id === account.id
+                  ? "border-primary border-2 bg-accent scale-[1.02] shadow-lg"
+                  : "hover:bg-accent hover:text-accent-foreground hover:scale-[1.01]"
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -118,6 +151,14 @@ export function AccountsList({
           ))}
         </CardContent>
       </Card>
+
+      <TransferModal
+        open={transferModalOpen}
+        onOpenChange={setTransferModalOpen}
+        sourceAccount={transferSource}
+        targetAccount={transferTarget}
+        onTransferComplete={refreshAccounts}
+      />
     </div>
   );
 }
