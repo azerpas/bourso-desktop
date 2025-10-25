@@ -178,6 +178,47 @@ async fn get_accounts(
 }
 
 #[tauri::command]
+async fn transfer_funds(
+    source_account_id: &str,
+    target_account_id: &str,
+    amount: f64,
+    reason: &str,
+    state: State<'_, Mutex<BoursoState>>,
+) -> Result<(), String> {
+    let state = state.lock().await;
+
+    let accounts = state
+        .client
+        .get_accounts(None)
+        .await
+        .expect("error while getting accounts");
+
+    let source_account = accounts
+        .iter()
+        .find(|a| a.id == source_account_id)
+        .expect("source account not found");
+
+    let target_account = accounts
+        .iter()
+        .find(|a| a.id == target_account_id)
+        .expect("target account not found");
+
+    match state
+        .client
+        .transfer_funds(
+            amount,
+            source_account.clone(),
+            target_account.clone(),
+            Some(reason),
+        )
+        .await
+    {
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!("error while transferring funds: {:?}", e)),
+    }
+}
+
+#[tauri::command]
 async fn get_ticks(symbol: &str, length: u16) -> Result<GetTicksEOD, String> {
     let interval = 0;
     let web_client: BoursoWebClient = get_client();
@@ -319,6 +360,7 @@ pub fn run() {
             init,
             init_client,
             get_accounts,
+            transfer_funds,
             get_ticks,
             is_dca_scheduler_setup,
             init_dca_scheduler,

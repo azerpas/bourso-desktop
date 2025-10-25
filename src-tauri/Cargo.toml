@@ -1,6 +1,6 @@
 [package]
 name = "bourso-desktop"
-version = "1.1.0"
+version = "1.2.0"
 description = "Open-source desktop app for Bourso"
 authors = ["azerpas"]
 edition = "2021"
@@ -18,7 +18,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow = "1.0.97"
-bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "20d5ab63012e1dbd25db2dc7744a7dd8845c632e" }
+bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0" }
 clap = "4.5"
 chrono = { version = "0.4.40", features = ["serde"] }
 croner = "2.1.0"

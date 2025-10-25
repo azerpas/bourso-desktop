@@ -464,7 +464,7 @@ dependencies = [
 
 [[package]]
 name = "bourso-desktop"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "bourso_api",
@@ -497,8 +497,8 @@ dependencies = [
 
 [[package]]
 name = "bourso_api"
-version = "0.1.11"
-source = "git+https://github.com/azerpas/bourso-api?rev=20d5ab63012e1dbd25db2dc7744a7dd8845c632e#20d5ab63012e1dbd25db2dc7744a7dd8845c632e"
+version = "0.3.0"
+source = "git+https://github.com/azerpas/bourso-api?rev=b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0#b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0"
 dependencies = [
  "anyhow",
  "chrono",
