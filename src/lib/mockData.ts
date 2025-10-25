@@ -9,18 +9,21 @@ export const mockAccounts: AccountType[] = [
     name: "PEA - Plan d'Épargne en Actions",
     balance: 15420.50,
     bank_name: "Boursorama",
+    kind: "Trading",
   },
   {
     id: "cto-789012",
     name: "CTO - Compte Titres Ordinaire",
     balance: 8750.25,
     bank_name: "Boursorama",
+    kind: "Trading",
   },
   {
     id: "avi-345678",
     name: "Assurance Vie",
     balance: 25000.00,
     bank_name: "Boursorama",
+    kind: "Savings",
   },
 ];
 
