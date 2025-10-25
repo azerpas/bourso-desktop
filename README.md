@@ -57,12 +57,12 @@ xattr -r -d com.apple.quarantine /Applications/bourso-desktop.app
 - Supply chain security
   - [ ] [SLSA](https://slsa.dev/)
   - [ ] [OpenSSF Scorecard](https://github.com/ossf/scorecard-action)
-- [ ] Portfolio performance
-  - [ ] Chart
-  - [ ] Stats (ROI, ...)
-- [ ] Inner account transfer
+- [X] Portfolio performance
+  - [X] Chart
+  - [X] Stats (ROI, ...)
+- [X] Inner account transfer
 - [ ] Dark mode
-- [ ] DCA: remind me in ...
+- [X] DCA: remind me in ...
 
 ## Known limitations
 - [ ] Limited dashboard chart features
