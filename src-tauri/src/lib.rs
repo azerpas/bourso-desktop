@@ -186,9 +186,31 @@ async fn transfer_funds(
     state: State<'_, Mutex<BoursoState>>,
 ) -> Result<(), String> {
     let state = state.lock().await;
+
+    let accounts = state
+        .client
+        .get_accounts(None)
+        .await
+        .expect("error while getting accounts");
+
+    let source_account = accounts
+        .iter()
+        .find(|a| a.id == source_account_id)
+        .expect("source account not found");
+
+    let target_account = accounts
+        .iter()
+        .find(|a| a.id == target_account_id)
+        .expect("target account not found");
+
     match state
         .client
-        .transfer_funds(amount, source_account_id, target_account_id, Some(reason))
+        .transfer_funds(
+            amount,
+            source_account.clone(),
+            target_account.clone(),
+            Some(reason),
+        )
         .await
     {
         Ok(_) => Ok(()),

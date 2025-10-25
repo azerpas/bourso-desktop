@@ -498,7 +498,7 @@ dependencies = [
 [[package]]
 name = "bourso_api"
 version = "0.2.0"
-source = "git+https://github.com/azerpas/bourso-api?rev=4ecc6c4f399b4065546e3686b99fe859473f6607#4ecc6c4f399b4065546e3686b99fe859473f6607"
+source = "git+https://github.com/azerpas/bourso-api?rev=57bf3f5c7211847c92fc24e2023f4f57067679ab#57bf3f5c7211847c92fc24e2023f4f57067679ab"
 dependencies = [
  "anyhow",
  "chrono",

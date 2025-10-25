@@ -68,11 +68,14 @@ export interface Job {
   command: Command;
 }
 
+export type AccountKind = "Banking" | "Savings" | "Trading" | "Loans";
+
 export interface AccountType {
   id: string;
   name: string;
   balance: number;
   bank_name: string;
+  kind: AccountKind;
 }
 
 export interface QuoteTab {

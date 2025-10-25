@@ -18,7 +18,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow = "1.0.97"
-bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "4ecc6c4f399b4065546e3686b99fe859473f6607" }
+bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "57bf3f5c7211847c92fc24e2023f4f57067679ab" }
 clap = "4.5"
 chrono = { version = "0.4.40", features = ["serde"] }
 croner = "2.1.0"
