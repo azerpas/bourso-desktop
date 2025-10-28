@@ -25,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { getFormattedAccountName } from "@/utils/format";
 
 const transferFormSchema = z.object({
   amount: z
@@ -56,6 +57,7 @@ interface TransferModalProps {
   onOpenChange: (open: boolean) => void;
   sourceAccount: AccountType | null;
   targetAccount: AccountType | null;
+  accounts: AccountType[];
   onTransferComplete?: () => void;
 }
 
@@ -64,6 +66,7 @@ export function TransferModal({
   onOpenChange,
   sourceAccount,
   targetAccount,
+  accounts,
   onTransferComplete,
 }: TransferModalProps) {
   const [loading, setLoading] = useState(false);
@@ -142,14 +145,14 @@ export function TransferModal({
               {/* Accounts Display */}
               <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">{sourceAccount.name}</p>
+                  <p className="text-sm font-medium">{getFormattedAccountName(sourceAccount, accounts)}</p>
                   <p className="text-xs text-muted-foreground">
                     {sourceAccount.bank_name}
                   </p>
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0" />
                 <div className="flex-1 space-y-1 text-right">
-                  <p className="text-sm font-medium">{targetAccount.name}</p>
+                  <p className="text-sm font-medium">{getFormattedAccountName(targetAccount, accounts)}</p>
                   <p className="text-xs text-muted-foreground">
                     {targetAccount.bank_name}
                   </p>
