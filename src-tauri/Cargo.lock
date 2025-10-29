@@ -288,6 +288,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-stream"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b5a71a6f37880a80d1d7f19efd781e4b5de42c88f0722cc13bcb6cc2cfe8476"
+dependencies = [
+ "async-stream-impl",
+ "futures-core",
+ "pin-project-lite",
+]
+
+[[package]]
+name = "async-stream-impl"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7c24de15d275a1ecfd47a380fb4d5ec9bfe0933f309ed5e705b775596a3574d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "async-task"
 version = "4.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -472,6 +494,7 @@ dependencies = [
  "clap",
  "croner",
  "fix-path-env",
+ "futures-util",
  "log",
  "log4rs",
  "notify-rust",
@@ -498,12 +521,14 @@ dependencies = [
 [[package]]
 name = "bourso_api"
 version = "0.3.0"
-source = "git+https://github.com/azerpas/bourso-api?rev=b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0#b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0"
+source = "git+https://github.com/azerpas/bourso-api?rev=52d49f15e9a626f6b24bbeee7a68982b4e1db104#52d49f15e9a626f6b24bbeee7a68982b4e1db104"
 dependencies = [
  "anyhow",
+ "async-stream",
  "chrono",
  "clap",
  "cookie_store",
+ "futures-util",
  "lazy_static",
  "log",
  "regex",

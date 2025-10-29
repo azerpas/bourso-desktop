@@ -18,11 +18,12 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow = "1.0.97"
-bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "b2d3b6d5cdcaab63e98b2c6eb68eb8c7ff5654a0" }
+bourso_api =  { git = "https://github.com/azerpas/bourso-api", rev = "52d49f15e9a626f6b24bbeee7a68982b4e1db104" }
 clap = "4.5"
 chrono = { version = "0.4.40", features = ["serde"] }
 croner = "2.1.0"
 fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
+futures-util = "0.3.31"
 log = "0.4.26"
 log4rs = "1"
 notify-rust = "4.11" # needed cause tauri-plugin-notification is not working with CLI

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 import { ArrowRight, Loader } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +26,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Progress } from "@/components/ui/progress";
 import { getFormattedAccountName } from "@/utils/format";
+
+// Transfer progress step descriptions
+const TRANSFER_STEPS: Record<number, string> = {
+  1: "Validating transfer",
+  2: "Initializing transfer (1)",
+  3: "Initializing transfer (2)", 
+  4: "Setting sending account",
+  5: "Setting destination account",
+  6: "Configuring amount",
+  7: "Validating beneficiary",
+  8: "Setting transfer reason",
+  9: "Confirming transfer",
+  10: "Completing transfer",
+};
+
+const TOTAL_STEPS = 10;
 
 const transferFormSchema = z.object({
   amount: z
@@ -70,6 +88,7 @@ export function TransferModal({
   onTransferComplete,
 }: TransferModalProps) {
   const [loading, setLoading] = useState(false);
+  const [transferProgress, setTransferProgress] = useState<number>(0);
 
   const form = useForm<z.infer<typeof transferFormSchema>>({
     resolver: zodResolver(transferFormSchema),
@@ -83,8 +102,30 @@ export function TransferModal({
   useEffect(() => {
     if (open) {
       form.reset();
+      setTransferProgress(0);
     }
   }, [open, form]);
+
+  // Listen for transfer progress events
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupListener = async () => {
+      unlisten = await listen<number>("transfer-funds-progress", (event) => {
+        setTransferProgress(event.payload);
+      });
+    };
+
+    if (open && loading) {
+      setupListener();
+    }
+
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
+  }, [open, loading]);
 
   const handleClose = () => {
     form.reset();
@@ -109,6 +150,7 @@ export function TransferModal({
     }
 
     setLoading(true);
+    setTransferProgress(0);
     try {
 
       await invoke("transfer_funds", {
@@ -118,7 +160,7 @@ export function TransferModal({
         reason: data.reason.trim(),
       });
 
-      toast.success("Transfer initiated successfully");
+      toast.success(`Transfered €${data.amount} successfully`);
       handleClose();
       onTransferComplete?.();
     } catch (error) {
@@ -126,6 +168,7 @@ export function TransferModal({
       toast.error(`Transfer failed: ${error}`);
     } finally {
       setLoading(false);
+      setTransferProgress(0);
     }
   };
 
@@ -217,6 +260,16 @@ export function TransferModal({
                   </FormItem>
                 )}
               />
+
+              {/* Progress indicator */}
+              {loading && transferProgress > 0 && (
+                <div className="space-y-2">
+                  <Progress value={(transferProgress / TOTAL_STEPS) * 100} />
+                  <p className="text-xs text-center text-muted-foreground">
+                    {transferProgress}/{TOTAL_STEPS}: {TRANSFER_STEPS[transferProgress]}
+                  </p>
+                </div>
+              )}
 
               <DialogFooter>
                 <Button
