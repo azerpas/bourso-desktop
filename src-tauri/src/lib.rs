@@ -6,12 +6,13 @@ use bourso_api::{
     get_client,
 };
 use cron::{deactivate_dca_scheduler, init_dca_scheduler, is_dca_scheduler_setup};
+use futures_util::{pin_mut, StreamExt};
 use log::{debug, info};
 use order::{get_orders_cmd, new_order_cmd};
 use scheduler::{run_job_manually, skip_dca_job};
 use tauri::{
     async_runtime::{block_on, Mutex},
-    AppHandle, Manager, State,
+    AppHandle, Emitter, Manager, State,
 };
 use tauri_plugin_cli::CliExt;
 use tauri_plugin_sentry::sentry;
@@ -184,6 +185,7 @@ async fn transfer_funds(
     amount: f64,
     reason: &str,
     state: State<'_, Mutex<BoursoState>>,
+    app: AppHandle,
 ) -> Result<(), String> {
     let state = state.lock().await;
 
@@ -203,19 +205,28 @@ async fn transfer_funds(
         .find(|a| a.id == target_account_id)
         .expect("target account not found");
 
-    match state
-        .client
-        .transfer_funds(
-            amount,
-            source_account.clone(),
-            target_account.clone(),
-            Some(reason),
-        )
-        .await
-    {
-        Ok(_) => Ok(()),
-        Err(e) => Err(format!("error while transferring funds: {:?}", e)),
+    let stream = state.client.transfer_funds_with_progress(
+        amount,
+        source_account.clone(),
+        target_account.clone(),
+        Some(reason.to_string()),
+    );
+
+    pin_mut!(stream);
+
+    while let Some(progress) = stream.next().await {
+        match progress {
+            Ok(p) => {
+                app.emit("transfer-funds-progress", p.step_number())
+                    .expect("error while emitting transfer progress");
+            }
+            Err(e) => {
+                return Err(format!("error while transferring funds: {:?}", e));
+            }
+        }
     }
+
+    Ok(())
 }
 
 #[tauri::command]

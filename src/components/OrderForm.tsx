@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { getFormattedAccountName } from "@/utils/format";
 import {
   Select,
   SelectContent,
@@ -216,7 +217,7 @@ export function OrderForm({
                           <SelectContent>
                             {accounts.map((account) => (
                               <SelectItem key={account.id} value={account.id}>
-                                {account.name}
+                                {getFormattedAccountName(account, accounts)}
                               </SelectItem>
                             ))}
                           </SelectContent>

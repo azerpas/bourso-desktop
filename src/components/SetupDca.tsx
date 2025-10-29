@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AccountType, AssetData, Job, WeeklyMonthly } from "../types";
 import { Clock, HelpCircle, Info, Settings, Trash2 } from "lucide-react";
+import { getFormattedAccountName } from "@/utils/format";
 import {
   DialogContent,
   DialogFooter,
@@ -333,7 +334,7 @@ export function SetupDca({
                             <SelectContent>
                               {accounts.map((account) => (
                                 <SelectItem key={account.id} value={account.id}>
-                                  {account.name}
+                                  {getFormattedAccountName(account, accounts)}
                                 </SelectItem>
                               ))}
                             </SelectContent>

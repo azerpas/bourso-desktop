@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { TransferModal } from "./TransferModal";
+import { getFormattedAccountName } from "@/utils/format";
 
 export function AccountsList({
   accounts,
@@ -140,8 +141,8 @@ export function AccountsList({
               {selectedAccount && (
                 <p className="text-sm text-muted-foreground">
                   {selectedAccount.kind === "Savings" 
-                    ? `Click a Banking account to transfer from ${selectedAccount.name}` 
-                    : `Click another account to transfer from ${selectedAccount.name}`}
+                    ? `Click a Banking account to transfer from ${getFormattedAccountName(selectedAccount, accounts)}` 
+                    : `Click another account to transfer from ${getFormattedAccountName(selectedAccount, accounts)}`}
                 </p>
               )}
               {!selectedAccount && (
@@ -168,6 +169,7 @@ export function AccountsList({
           {accounts.map((account) => {
             const clickable = isAccountClickable(account);
             const isSelected = selectedAccount?.id === account.id;
+            const displayName = getFormattedAccountName(account, accounts);
             
             return (
               <div
@@ -183,7 +185,7 @@ export function AccountsList({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{account.name}</h3>
+                    <h3 className="font-medium">{displayName}</h3>
                     {account.bank_name !== "BoursoBank" && (
                       <Badge
                         variant="outline"
@@ -211,6 +213,7 @@ export function AccountsList({
         onOpenChange={setTransferModalOpen}
         sourceAccount={transferSource}
         targetAccount={transferTarget}
+        accounts={accounts}
         onTransferComplete={refreshAccounts}
       />
     </div>

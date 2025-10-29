@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { TrendingUp, TrendingDown, Loader } from "lucide-react";
+import { TrendingUp, TrendingDown, Loader, Eye, EyeOff } from "lucide-react";
 import { AssetData, PositionSummary, AccountType, TradingSummaryItem } from "@/types";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Button } from "./ui/button";
 
 type TimePeriod = "1d" | "1m" | "6m" | "1y";
 
@@ -59,6 +60,7 @@ export function PerformanceSummary({
   const [positions, setPositions] = useState<PositionSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPeriod, setLoadingPeriod] = useState(false);
+  const [hideGains, setHideGains] = useState(false);
 
   // Fetch positions from trading summary
   useEffect(() => {
@@ -258,6 +260,7 @@ export function PerformanceSummary({
   }, [positions, assetsData]);
 
   const formatCurrency = (value: number) => {
+    if (hideGains) return "****";
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "EUR",
@@ -284,22 +287,37 @@ export function PerformanceSummary({
               )}
               Performance
             </CardTitle>
-            <Select
-              value={selectedPeriod}
-              onValueChange={(value) => setSelectedPeriod(value as TimePeriod)}
-              disabled={loadingPeriod}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Select period" />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(PERIOD_CONFIG) as TimePeriod[]).map((period) => (
-                  <SelectItem key={period} value={period}>
-                    {PERIOD_CONFIG[period].label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHideGains(!hideGains)}
+                className="gap-2"
+              >
+                {hideGains ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeOff className="h-4 w-4" />
+                )}
+                {hideGains ? "Show" : "Hide"} Gains
+              </Button>
+              <Select
+                value={selectedPeriod}
+                onValueChange={(value) => setSelectedPeriod(value as TimePeriod)}
+                disabled={loadingPeriod}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Select period" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(PERIOD_CONFIG) as TimePeriod[]).map((period) => (
+                    <SelectItem key={period} value={period}>
+                      {PERIOD_CONFIG[period].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
