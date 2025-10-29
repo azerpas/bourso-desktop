@@ -205,7 +205,7 @@ async fn transfer_funds(
         .find(|a| a.id == target_account_id)
         .expect("target account not found");
 
-    let stream = state.client.transfer_funds_with_progress(
+    let stream = state.client.transfer_funds(
         amount,
         source_account.clone(),
         target_account.clone(),
