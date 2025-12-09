@@ -74,6 +74,7 @@ export interface AccountType {
   id: string;
   name: string;
   balance: number;
+  cash_balance?: number;
   bank_name: string;
   kind: AccountKind;
 }
@@ -101,6 +102,7 @@ export interface TradingSummaryItem {
   /** Either "account" or "positions" */
   id: string;
   positions?: PositionSummary[];
+  account?: AccountSummary;
 }
 
 /**
