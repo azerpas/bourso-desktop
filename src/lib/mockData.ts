@@ -1,21 +1,28 @@
-import { AccountType, AssetData } from "@/types";
+import { AccountType, AssetData, Job } from "@/types";
 
 /**
  * Mock accounts data for development mode
  */
 export const mockAccounts: AccountType[] = [
   {
+    id: "compte-123456",
+    name: "Compte Courant",
+    balance: 320000,
+    bank_name: "Boursorama",
+    kind: "Banking",
+  },
+  {
     id: "pea-123456",
     name: "PEA - Plan d'Épargne en Actions",
-    balance: 15420.50,
-    cash_balance: 1200.75,
+    balance: 1542000,
+    cash_balance: 12.75,
     bank_name: "Boursorama",
     kind: "Trading",
   },
   {
     id: "cto-789012",
     name: "CTO - Compte Titres Ordinaire",
-    balance: 8750.25,
+    balance: 875025,
     cash_balance: 500.00,
     bank_name: "Boursorama",
     kind: "Trading",
@@ -125,3 +132,30 @@ function generateMockQuotes(
 export function isDevMode(): boolean {
   return import.meta.env.VITE_DEV_MODE === 'true';
 }
+
+/**
+ * Check if CRON simulation mode is enabled
+ */
+export function isSimulateCron(): boolean {
+  return import.meta.env.VITE_SIMULATE_CRON === 'true';
+}
+
+/**
+ * Mock jobs for CRON simulation
+ */
+export const mockJobs: Job[] = [
+  {
+    id: "monthlyorder_buy_1_1rTCW8",
+    schedule: { monthly: { day: 1 } },
+    last_run: Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60, // 30 days ago
+    command: {
+      order: {
+        account: "pea-123456",
+        symbol: "1rTCW8",
+        quantity: 1,
+        amount: undefined,
+        side: "buy",
+      },
+    },
+  }
+];

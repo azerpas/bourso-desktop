@@ -73,7 +73,13 @@ export type AccountKind = "Banking" | "Savings" | "Trading" | "Loans";
 export interface AccountType {
   id: string;
   name: string;
+  /**
+   * Balance in cents
+   */
   balance: number;
+  /**
+   * Cash balance for trading accounts in euros
+   */
   cash_balance?: number;
   bank_name: string;
   kind: AccountKind;

@@ -21,10 +21,11 @@ import { parseAssetData } from "@/utils/assetUtils";
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { jobToString } from "@/utils/jobUtils";
+import { jobDescriptionInfos } from "@/utils/jobUtils";
+import { isDevMode, isSimulateCron, mockJobs } from "@/lib/mockData";
 
 export function Dashboard({
   accounts,
@@ -49,6 +50,7 @@ export function Dashboard({
   const [dcaScheduled, setDcaScheduled] = useState<boolean>(false);
   const [versionId, setVersionId] = useState<string | undefined>();
   const [jobsExecuted, setJobsExecuted] = useState<number>(0);
+  const jobToastsShownRef = useRef<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -90,10 +92,34 @@ export function Dashboard({
       }
 
       const state: InitResponse = await invoke("init");
-      if (state.jobs_to_run.length > 0) {
-        for (const job of state.jobs_to_run) {
+      
+      // Simulate CRON mode if environment variable is set
+      let jobsToRun = state.jobs_to_run;
+      if (isSimulateCron() && isDevMode()) {
+        // In simulation mode, replace (not add) with mock jobs
+        jobsToRun = mockJobs;
+      }
+      
+      // Prevent duplicate toasts in React StrictMode (development)
+      if (jobsToRun.length > 0 && !jobToastsShownRef.current) {
+        jobToastsShownRef.current = true;
+        for (const job of jobsToRun) {
+          const descriptionInfos = jobDescriptionInfos(job, accounts, assetsData);
           toast(`Confirm job execution`, {
-            description: jobToString(job),
+            description: (<>
+              <div>{descriptionInfos.schedule}</div>
+              <div>{descriptionInfos.command}</div>
+              {descriptionInfos.cashBalance !== null && (
+                <p>
+                  ⚠️ <b>Insufficient cash balance on account </b>
+                  <i>{"\""}{accounts.find(a => a.id === job.command.order?.account)?.name}{"\""}: </i>
+                  {descriptionInfos.cashBalance.toFixed(2)}€ <br/> 
+                  {descriptionInfos.needCash > 0 && (
+                    <>Need: {descriptionInfos.needCash.toFixed(2)}€</>
+                  )}
+                </p>
+              )}
+            </>),
             action: {
               label: "Run",
               onClick: async () => {
