@@ -57,7 +57,8 @@ export function LoginModal(props: LoginModalProps) {
   const formSchema = z.object({
     clientId: z
       .string()
-      .length(8, "Client ID must be 8 characters long")
+      .min(7, "Client ID must be either 7 or 8 digits")
+      .max(8, "Client ID must be either 7 or 8 digits")
       .regex(/^\d+$/, "Client ID must be a number"),
     password: z
       .string()
