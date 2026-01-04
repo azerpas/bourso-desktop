@@ -14,7 +14,7 @@ import { ToastAction } from "./components/ui/toast";
 import "./lib/logs";
 import { Dialog } from "./components/ui/dialog";
 import { InputOTPForm } from "./components/MfaForm";
-import { isDevMode, mockAccounts, mockAssetsData } from "./lib/mockData";
+import { isDevMode, isSimulateCron, mockAccounts, mockAssetsData, mockJobs } from "./lib/mockData";
 
 function App() {
   const devMode = isDevMode();
@@ -66,8 +66,19 @@ function App() {
         setPassword(password);
       }
 
-      const state: InitResponse = await invoke("init");
-      if (state.dca_without_password) {
+      let state: InitResponse = await invoke("init");
+      
+      // Simulate CRON mode if environment variable is set
+      if (isSimulateCron() && devMode) {
+        state = {
+          dca_without_password: true,
+          jobs_to_run: mockJobs,
+        };
+      }
+      
+      // Show toast in App.tsx only when NOT in dev mode (real CRON scenario)
+      // In dev mode, dashboard.tsx will handle showing the job confirmation toasts
+      if (state.dca_without_password && !devMode) {
         // Format the DCA jobs information
         const dcaInfo = state.jobs_to_run.map(job => {
           if (job.command.order) {

@@ -41,6 +41,20 @@ Then run the following command in your terminal:
 xattr -r -d com.apple.quarantine /Applications/bourso-desktop.app
 ```
 
+## Development
+
+### Running in dev mode
+```bash
+VITE_DEV_MODE=true pnpm run dev
+```
+
+### Simulating CRON DCA execution
+To test the DCA balance display feature without setting up actual CRON jobs, you can use the CRON simulation mode:
+
+```bash
+VITE_DEV_MODE=true VITE_SIMULATE_CRON=true pnpm run dev
+```
+
 ## Features
 
 - [x] Assets charts

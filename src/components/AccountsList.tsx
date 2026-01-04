@@ -1,4 +1,4 @@
-import { AccountType } from "@/types";
+import { AccountType, TradingSummaryItem } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Eye, EyeOff, Loader, RefreshCw, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -39,9 +39,43 @@ export function AccountsList({
 
   const refreshAccounts = async () => {
     setRefreshing(true);
-    const accounts: AccountType[] = await invoke("get_accounts");
-    setAccounts(accounts);
-    setRefreshing(false);
+    try {
+      const accounts: AccountType[] = await invoke("get_accounts");
+
+      // Fetch trading summaries in parallel for all trading accounts
+      const updatedAccounts = await Promise.all(
+        accounts.map(async (account) => {
+          if (account.kind !== "Trading") {
+            return account;
+          }
+
+          try {
+            const tradingSummary: TradingSummaryItem[] = await invoke(
+              "get_trading_summary",
+              { accountId: account.id },
+            );
+            const accountItem = tradingSummary.find(
+              (item) => item.id === "account" && item.account,
+            );
+            return {
+              ...account,
+              cash_balance: accountItem?.account?.cash?.value,
+            };
+          } catch (error) {
+            console.error(
+              `Failed to fetch trading summary for account ${account.id}:`
+            );
+            console.error(error);
+            // Return account unchanged if trading summary fails
+            return account;
+          }
+        }),
+      );
+
+      setAccounts(updatedAccounts);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleAccountClick = (account: AccountType) => {
@@ -195,9 +229,16 @@ export function AccountsList({
                       </Badge>
                     )}
                   </div>
-                  <span className="text-lg font-semibold">
-                    {formatBalance(account.balance)}
-                  </span>
+                  <div className="relative">
+                    <span className="text-lg font-semibold">
+                      {formatBalance(account.balance)}
+                    </span>
+                    {account.kind === "Trading" && account.cash_balance !== undefined && (
+                      <span className="absolute top-full right-0 text-xs text-muted-foreground whitespace-nowrap">
+                        Cash: {account.cash_balance} €
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {account.bank_name}
