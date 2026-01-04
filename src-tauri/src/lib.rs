@@ -10,12 +10,13 @@ use futures_util::{pin_mut, StreamExt};
 use log::{debug, info};
 use order::{get_orders_cmd, new_order_cmd};
 use scheduler::{run_job_manually, skip_dca_job};
+use sentry;
 use tauri::{
     async_runtime::{block_on, Mutex},
     AppHandle, Emitter, Manager, State,
 };
 use tauri_plugin_cli::CliExt;
-use tauri_plugin_sentry::sentry;
+use tauri_plugin_sentry;
 use tauri_plugin_updater::UpdaterExt;
 use trading::get_trading_summary;
 
