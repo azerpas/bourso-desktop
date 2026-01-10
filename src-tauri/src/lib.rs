@@ -32,13 +32,14 @@ struct BoursoState {
     pub client: BoursoWebClient,
     pub dca_without_password: bool,
     pub jobs_to_run: Vec<scheduler::Job>,
-    pub mfas: Vec<Mfa>,
+    pub mfa_pending: Option<Mfa>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 struct Mfa {
     pub otp_id: String,
-    pub token: String,
+    pub form_state: String,
+    pub token_form: String,
     pub mfa_type: bourso_api::client::MfaType,
 }
 
@@ -94,14 +95,15 @@ async fn init_client(
         Ok(_) => {}
         Err(e) => match e.downcast_ref() {
             Some(bourso_api::client::error::ClientError::MfaRequired) => {
-                let (otp_id, token, mfa_type) = state
+                let (otp_id, form_state, token_form, mfa_type) = state
                     .client
                     .request_mfa()
                     .await
                     .expect("error while requesting mfa");
-                state.mfas.push(Mfa {
+                state.mfa_pending = Some(Mfa {
                     otp_id,
-                    token,
+                    form_state,
+                    token_form,
                     mfa_type,
                 });
                 return Err("mfa required".to_string());
@@ -113,57 +115,38 @@ async fn init_client(
 }
 
 #[tauri::command]
-async fn get_mfas(state: State<'_, Mutex<BoursoState>>) -> Result<Vec<Mfa>, ()> {
-    let state = state.lock().await;
-    Ok(state.mfas.clone())
+async fn check_mfa(state: State<'_, Mutex<BoursoState>>) -> Result<bool, String> {
+    let mut state = state.lock().await;
+
+    let mfa = state
+        .mfa_pending
+        .as_ref()
+        .ok_or("No MFA pending".to_string())?;
+
+    let mfa_type = mfa.mfa_type.clone();
+    let otp_id = mfa.otp_id.clone();
+    let form_state = mfa.form_state.clone();
+    let token_form = mfa.token_form.clone();
+
+    match state
+        .client
+        .check_mfa(mfa_type, otp_id, form_state, token_form)
+        .await
+    {
+        Ok(is_confirmed) => Ok(is_confirmed),
+        Err(e) => match e.downcast_ref() {
+            Some(bourso_api::client::error::ClientError::QRCodeRequired(qr_code)) => {
+                Err(format!("qrcode:{}", qr_code))
+            }
+            _ => Err(format!("error while checking mfa: {:?}", e)),
+        },
+    }
 }
 
 #[tauri::command]
-async fn submit_mfa(
-    mfa: Mfa,
-    code: &str,
-    state: State<'_, Mutex<BoursoState>>,
-) -> Result<(), String> {
-    let mut state = state.lock().await;
-    match state
-        .client
-        .submit_mfa(mfa.mfa_type, mfa.otp_id, code.to_string(), mfa.token)
-        .await
-    {
-        Ok(_) => Ok(()),
-        Err(e) => match e.downcast_ref() {
-            Some(bourso_api::client::error::ClientError::MfaRequired) => {
-                let sms_and_email_mfa = state
-                    .mfas
-                    .iter()
-                    .any(|m| m.mfa_type == bourso_api::client::MfaType::Sms)
-                    && state
-                        .mfas
-                        .iter()
-                        .any(|m| m.mfa_type == bourso_api::client::MfaType::Email);
-                if state.mfas.len() >= 2 && sms_and_email_mfa {
-                    // If MFA is passed twice, it means the user has passed an sms and email mfa
-                    // which should clear the IP. We just need to reinitialize the session
-                    // and login again to access the account.
-                    state.client = get_client();
-                    return Ok(());
-                }
-
-                let (otp_id, token, mfa_type) = state
-                    .client
-                    .request_mfa()
-                    .await
-                    .expect("error while requesting mfa");
-                state.mfas.push(Mfa {
-                    otp_id,
-                    token,
-                    mfa_type,
-                });
-                Err("mfa required".to_string())
-            }
-            _ => Err(format!("error while submitting mfa: {:?}", e)),
-        },
-    }
+async fn get_pending_mfa(state: State<'_, Mutex<BoursoState>>) -> Result<Option<Mfa>, ()> {
+    let state = state.lock().await;
+    Ok(state.mfa_pending.clone())
 }
 
 #[tauri::command]
@@ -387,8 +370,8 @@ pub fn run() {
             run_job_manually,
             skip_dca_job,
             new_order_cmd,
-            get_mfas,
-            submit_mfa,
+            check_mfa,
+            get_pending_mfa,
             check_for_updates,
             update,
         ])
@@ -397,7 +380,7 @@ pub fn run() {
                 client: BoursoWebClient::new(),
                 dca_without_password: false,
                 jobs_to_run: vec![],
-                mfas: vec![],
+                mfa_pending: None,
             }));
             block_on(async {
                 if let Ok(matches) = app.cli().matches() {
