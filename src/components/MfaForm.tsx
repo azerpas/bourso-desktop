@@ -11,6 +11,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Smartphone } from "lucide-react";
 
+const MFA_POLLING_INTERVAL_MS = 5000;
+
 export function MfaPrompt({
   setMfaCompleted,
   setMfaDialogOpen,
@@ -93,7 +95,7 @@ export function MfaPrompt({
     checkMfaStatus();
 
     // Then check every 5 seconds
-    checkIntervalRef.current = setInterval(checkMfaStatus, 5000);
+    checkIntervalRef.current = setInterval(checkMfaStatus, MFA_POLLING_INTERVAL_MS);
 
     // Cleanup
     return () => {
