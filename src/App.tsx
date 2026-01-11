@@ -13,7 +13,7 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { ToastAction } from "./components/ui/toast";
 import "./lib/logs";
 import { Dialog } from "./components/ui/dialog";
-import { InputOTPForm } from "./components/MfaForm";
+import { MfaPrompt } from "./components/MfaForm";
 import { isDevMode, isSimulateCron, mockAccounts, mockAssetsData, mockJobs } from "./lib/mockData";
 
 function App() {
@@ -205,10 +205,10 @@ function App() {
           if (message.includes("credentials")) {
             setClientError("Invalid client ID or password");
           } else if (message.includes("mfa required")) {
-            const mfas: Mfa[] = await invoke("get_mfas");
-            console.log(mfas);
-            if (mfas.length > 0) {
-              setCurrentMfa(mfas[mfas.length - 1]);
+            const mfa: Mfa | null = await invoke("get_pending_mfa");
+            console.log(mfa);
+            if (mfa) {
+              setCurrentMfa(mfa);
               setMfaDialogOpen(true);
             } else {
               setClientError(
@@ -281,7 +281,7 @@ function App() {
         />
         {currentMfa && (
           <Dialog open={mfaDialogOpen} onOpenChange={setMfaDialogOpen}>
-            <InputOTPForm
+            <MfaPrompt
               mfa={currentMfa}
               setMfaCompleted={setMfaCompleted}
               setMfaDialogOpen={setMfaDialogOpen}

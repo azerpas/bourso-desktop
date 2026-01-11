@@ -166,7 +166,12 @@ export interface AccountSummary {
 export interface Mfa {
   otp_id: string;
   token: string;
+  session_id: string;
   mfa_type: string;
+}
+
+export interface QRCodeData {
+  code: string;
 }
 
 export interface UpdateAvailable {
